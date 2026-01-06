@@ -5,7 +5,7 @@ import asyncio
 from typing import Union, Optional
 from discord import app_commands
 from collections import defaultdict
-from utils.data import Player, Room, Item, Object, playerdata, roomdata, save, get_max_carry_weight, get_max_wear_weight
+from utils.data import Player, Room, Item, Object, Exit, playerdata, roomdata, save, get_max_carry_weight, get_max_wear_weight
 from utils.messages import ITEM_MESSAGES, INVALID_MESSAGES
 
 # maximum number of choices discord allows in an autocomplete list
@@ -15,6 +15,7 @@ hidden_items_cache = defaultdict(list)
 hidden_items_lock = asyncio.Lock()
 
 Container = Union["Room", "Object", "Player"]
+Locks = Union["Object", "Exit"]
 
 #region Get Class methods
 
@@ -49,7 +50,7 @@ def get_room_from_name(name: str) -> typing.Optional[Room]:
 
 #region Validation methods
 
-#region Check if player is paused TODO: swap interaction/player for parity; currently many commands still just use this command so it would break a lot to swap them rn. wait until the end
+#region Check if player is paused TODO: swap interaction/player for parity; currently many commands still just use this command so it would break a lot to swap them rn. wait until finished refactoring so it's easier
 async def check_paused(player: typing.Optional[Player], interaction: discord.Interaction) -> bool:
     if player is not None and player.is_paused():
         await interaction.response.send_message(content="*Player commands are currently paused. Please wait until an admin unpauses.*", ephemeral=True)
@@ -101,7 +102,7 @@ async def check_object_exists(interaction: discord.Interaction, room: typing.Opt
     return searched_obj
 #endregion
 #region Check if object is a container
-async def check_obj_container(interaction: discord.Interaction, room: typing.Optional[Room], object_name: str, player: Player, display_matters: bool = False) -> typing.Optional[Object]:
+async def check_obj_container(interaction: discord.Interaction, room: typing.Optional[Room], object_name: str, player: Player, display_matters: bool = False, lock_matters: bool = True) -> typing.Optional[Object]:
     
     searched_obj = await check_object_exists(interaction, room, object_name)
 
@@ -116,11 +117,12 @@ async def check_obj_container(interaction: discord.Interaction, room: typing.Opt
     if display_matters:
         is_display = searched_obj.get_display_state() if hasattr(searched_obj, "isDisplay") else False
 
-    if searched_obj.get_locked_state():
-        if display_matters and is_display:
-            return searched_obj
-        await interaction.response.send_message(f"***{player.get_name()}** tried to use the object **{searched_obj.get_name()}**, but it was locked.*")
-        return None
+    if lock_matters:
+        if searched_obj.get_locked_state():
+            if display_matters and is_display:
+                return searched_obj
+            await interaction.response.send_message(f"***{player.get_name()}** tried to use the object **{searched_obj.get_name()}**, but it was locked.*")
+            return None
     
     return searched_obj
 #endregion
@@ -281,6 +283,11 @@ def transfer_item(
             delete_from(source, item_list[i], is_clothes_source)
             save()
         return ITEM_MESSAGES[message_type]["multiple"](player=player, item=item_list[0], amount=amount, obj=obj)
+#endregion
+
+#region Change an object or exit's locked state
+async def set_lock(interaction: discord.Interaction, lockable_var: Locks):
+    return
 #endregion
 
 #region Simplify string

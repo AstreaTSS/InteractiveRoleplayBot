@@ -61,7 +61,6 @@ helpPages = [help_page_one, help_page_two, help_page_three, help_page_four, help
 class Help(discord.ui.View):
     def __init__(self):
         super().__init__()
-        self.value = None
         self.currentHelpPage = 0
 
     @discord.ui.button(label = 'Back', style = discord.ButtonStyle.gray, emoji = "◀️", disabled = True, custom_id = 'back', row = 0)
@@ -154,7 +153,6 @@ adminHelpPages = [adminhelp1, adminhelp2, adminhelp3, adminhelp4, adminhelp5, ad
 class AdminHelp(discord.ui.View):
     def __init__(self):
         super().__init__()
-        self.value = None
         self.currentHelpPage = 0
 
     @discord.ui.button(label = 'Back', style = discord.ButtonStyle.gray, emoji = "◀️", disabled = True, custom_id = 'back', row = 0)
