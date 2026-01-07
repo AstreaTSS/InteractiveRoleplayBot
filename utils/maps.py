@@ -125,6 +125,31 @@ ITEM_MESSAGES = {
             f"*Could not find the item **{kwargs.get('item_name')}**. Please use `/clothes` to see the clothes you are wearing.*",
         "full": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to take off and drop the item **{kwargs.get('item').get_name()}** into the object **{kwargs.get('obj').get_name()}**, but there wasn't enough space.*",
+    },
+
+    "key": {
+        "not_found": lambda **kwargs:
+            f"*Could not find the item **{kwargs.get('item_name')}** to use as a key. Please use `/inventory` to see a list of items in your inventory.*",
+    }
+}
+
+LOCK_MESSAGES = {
+    "lockobject": {
+        "success": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** locked the object **{kwargs.get('lockable').get_name()}** using **{kwargs.get('key').get_name()}**.*",
+        "already": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable').get_name()}**, but it was already locked.*",
+        "failure": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable').get_name()}**, but **{kwargs.get('key').get_name()}** was not the key.*",
+    },
+
+    "unlockobject": {
+        "success": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** unlocked the object **{kwargs.get('lockable').get_name()}** using **{kwargs.get('key').get_name()}**.*",
+        "already": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable').get_name()}**, but it was already unlocked.*",
+        "failure": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable').get_name()}**, but **{kwargs.get('key').get_name()}** was not the key.*",
     }
 }
 
@@ -133,4 +158,30 @@ INVALID_MESSAGES = {
         "negative": lambda amount:
             f"***{amount}** is an invalid input; please use a positive number.*"
     }
+}
+
+ACTION_EMOTES: dict[str, str] = {
+    # take
+    "take": ":school_satchel:",
+    "takefrom": ":school_satchel:",
+
+    # drop
+    "drop": ":palm_down_hand:",
+    "dropinto": ":palm_down_hand:",
+
+    # clothing
+    "wear": ":shirt:",
+    "wearfrom": ":shirt:",
+    "takewear": ":shirt:",
+    "undress": ":shirt:",
+    "undressroom": ":shirt:",
+    "undressinto": ":shirt:",
+
+    # lock
+    "lockobject": ":lock:",
+    "lockexit": ":lock:",
+
+    # unlock
+    "unlockobject": ":unlock:",
+    "unlockexit": ":unlock:",
 }

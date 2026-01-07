@@ -46,7 +46,7 @@ class ItemCMDs(commands.Cog):
             return
 
         # Transfer the item from the room into their inventory, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(current_room, player, player, found_items, "take", amount))
+        return await interaction.followup.send(view=helpers.transfer_item(current_room, player, player, found_items, "take", amount))
     #endregion
     #region /takefrom
     @app_commands.command(name = "takefrom", description = "Take an item from an object in the room.")
@@ -84,7 +84,7 @@ class ItemCMDs(commands.Cog):
             return
         
         # Transfer the item from the object into their inventory, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(searched_obj, player, player, found_items, "takefrom", amount, searched_obj))
+        return await interaction.followup.send(view=helpers.transfer_item(searched_obj, player, player, found_items, "takefrom", amount, searched_obj))
     #endregion
     #region /drop
     @app_commands.command(name = "drop", description = "Drop an item from your inventory into the room.")
@@ -116,7 +116,7 @@ class ItemCMDs(commands.Cog):
             return
 
         # Transfer the item from their inventory into the room
-        return await interaction.followup.send(helpers.transfer_item(player, current_room, player, found_items, "drop", amount))
+        return await interaction.followup.send(view=helpers.transfer_item(player, current_room, player, found_items, "drop", amount))
     #endregion
     #region /dropinto
     @app_commands.command(name = "dropinto", description = "Drop an item from your inventory into an object.")
@@ -154,7 +154,7 @@ class ItemCMDs(commands.Cog):
             return
 
         # Transfer the item from the player's inventory into the object, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(player, searched_obj, player, found_items, "dropinto", amount, searched_obj))
+        return await interaction.followup.send(view=helpers.transfer_item(player, searched_obj, player, found_items, "dropinto", amount, searched_obj))
     #endregion
     #region /wear
     @app_commands.command(name = "wear", description = "Wear a clothing item from your inventory or current room.")
@@ -204,7 +204,7 @@ class ItemCMDs(commands.Cog):
             return
         
         # Transfer the item from the source into the player's clothing, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(source, player, player, found_items, message_type, amount=1, is_clothes_dest=True))
+        return await interaction.followup.send(view=helpers.transfer_item(source, player, player, found_items, message_type, amount=1, is_clothes_dest=True))
     #endregion
     #region /wearfrom
     @app_commands.command(name = "wearfrom", description = "Wear a clothing item that's located in an object in the room.")
@@ -242,7 +242,7 @@ class ItemCMDs(commands.Cog):
             return
         
         # Transfer the item from the object into their inventory, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(searched_obj, player, player, found_items, "wearfrom", amount=1, obj=searched_obj, is_clothes_dest=True))
+        return await interaction.followup.send(view=helpers.transfer_item(searched_obj, player, player, found_items, "wearfrom", amount=1, obj=searched_obj, is_clothes_dest=True))
     #endregion
     #region /undress
     @app_commands.command(name = "undress", description = "Take off a clothing item and place it into your inventory or the current room.")
@@ -288,7 +288,7 @@ class ItemCMDs(commands.Cog):
             destination = current_room
 
         # Transfer the item from their inventory into the room
-        return await interaction.followup.send(helpers.transfer_item(player, destination, player, found_items, message_type, amount=1, is_clothes_source=True))
+        return await interaction.followup.send(view=helpers.transfer_item(player, destination, player, found_items, message_type, amount=1, is_clothes_source=True))
     #endregion
     #region /undressinto
     @app_commands.command(name = "undressinto", description = "Take off a clothing item and place it into an object.")
@@ -326,7 +326,7 @@ class ItemCMDs(commands.Cog):
             return
 
         # Transfer the item from the player's inventory into the object, send confirmation message
-        return await interaction.followup.send(helpers.transfer_item(player, searched_obj, player, found_items, "undressinto", 1, searched_obj, True))
+        return await interaction.followup.send(view=helpers.transfer_item(player, searched_obj, player, found_items, "undressinto", 1, searched_obj, True))
     #endregion
 
 async def setup(bot: commands.Bot):

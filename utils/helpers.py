@@ -6,7 +6,8 @@ from typing import Union, Optional
 from discord import app_commands
 from collections import defaultdict
 from utils.data import Player, Room, Item, Object, Exit, playerdata, roomdata, save, get_max_carry_weight, get_max_wear_weight
-from utils.messages import ITEM_MESSAGES, INVALID_MESSAGES
+from utils.maps import ITEM_MESSAGES, INVALID_MESSAGES, LOCK_MESSAGES
+from utils.layout import SimpleAction
 
 # maximum number of choices discord allows in an autocomplete list
 MAX_CHOICES = 25
@@ -53,6 +54,8 @@ def get_room_from_name(name: str) -> typing.Optional[Room]:
 #region Check if player is paused TODO: swap interaction/player for parity; currently many commands still just use this command so it would break a lot to swap them rn. wait until finished refactoring so it's easier
 async def check_paused(player: typing.Optional[Player], interaction: discord.Interaction) -> bool:
     if player is not None and player.is_paused():
+        # TODO: once all commands are reformatted, the following can be changed to use cv2. currently breaks a lot of commands when paused
+        # (view=SimpleAction(None, ' *Player commands are currently paused. Please wait until an admin unpauses.*', emote=':pause_button:'), ephemeral=True)
         await interaction.response.send_message(content="*Player commands are currently paused. Please wait until an admin unpauses.*", ephemeral=True)
         return True
     return False
@@ -76,7 +79,7 @@ async def check_valid_player(interaction: discord.Interaction, player: Player) -
 #region Check if the player is in a room
 async def check_room_exists(interaction: discord.Interaction, room: typing.Optional[Room]) -> bool:
     if room is None:
-        await interaction.response.send_message("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*")
+        await interaction.response.send_message("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*", ephemeral=True)
         return True
     return False
 #endregion
@@ -275,19 +278,54 @@ def transfer_item(
         add_to(dest, item_list[0], is_clothes_dest)
         delete_from(source, item_list[0], is_clothes_source)
         save()
-        return ITEM_MESSAGES[message_type]["single"](player=player, item=item_list[0], obj=obj)
+        text_output = ITEM_MESSAGES[message_type]["single"](player=player, item=item_list[0], obj=obj)
+        return SimpleAction(message_type, text_output)
     
     if amount > 1:
         for i in range(amount):
             add_to(dest, item_list[i], is_clothes_dest)
             delete_from(source, item_list[i], is_clothes_source)
             save()
-        return ITEM_MESSAGES[message_type]["multiple"](player=player, item=item_list[0], amount=amount, obj=obj)
+        text_output = ITEM_MESSAGES[message_type]["multiple"](player=player, item=item_list[0], amount=amount, obj=obj)
+        return SimpleAction(message_type, text_output)
 #endregion
 
 #region Change an object or exit's locked state
-async def set_lock(interaction: discord.Interaction, lockable_var: Locks):
-    return
+async def set_lock(
+        interaction: discord.Interaction, 
+        lockable_var: Locks,
+        new_locked_state: bool,
+        player: Player,
+        item_list: typing.List[Item],
+        item_name: str,
+        message_type: str
+        ) -> bool:
+
+    if isinstance(lockable_var, Object):
+        if lockable_var.get_locked_state() == new_locked_state:
+            text_output = LOCK_MESSAGES[message_type]["already"](player=player, lockable=lockable_var)
+            await interaction.followup.send(view=SimpleAction(message_type, text_output, True))
+            return False
+
+    #### TODO: CREATE LOGIC FOR EXITS AS WELL ####
+    # elif isinstance(lockable_var, Exit):
+    
+    found_items = await find_items_in_list(interaction, item_list, item_name, message_type="key")
+    if found_items is None:
+        return False
+    
+    key = found_items[0]
+    
+    if simplify_string(lockable_var.get_key_name()) == simplify_string(key.get_name()):
+        lockable_var.switch_locked_state(new_locked_state)
+        save()
+        text_output = LOCK_MESSAGES[message_type]["success"](player=player, lockable=lockable_var, key=key)
+        await interaction.followup.send(view=SimpleAction(message_type, text_output))
+        return True
+    else:
+        text_output = LOCK_MESSAGES[message_type]["failure"](player=player, lockable=lockable_var, key=key)
+        await interaction.followup.send(view=SimpleAction(message_type, text_output, True))
+        return False
 #endregion
 
 #region Simplify string

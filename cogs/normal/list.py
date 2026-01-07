@@ -173,9 +173,9 @@ class ListCMDs(commands.Cog):
         itemList = searchedObj.get_items()
         if len(itemList) == 0:
             if player is not None:
-                await interaction.followup.send(f"***{player.get_name()}** looked inside of the object **{searchedObj.get_name()}**:*\n\n`No items could be found`.")
+                await interaction.followup.send(f"***{player.get_name()}** looked inside of the object **{searchedObj.get_name()}**:*\n\n`No items could be found in the room`.")
                 return
-            await interaction.followup.send(f"*Looked inside of the object **{searchedObj.get_name()}**:*\n\n`No items could be found`.")
+            await interaction.followup.send(f"*Looked inside of the object **{searchedObj.get_name()}**:*\n\n`No items could be found in the room`.")
             return
 
         itemNames = [f"`{item.get_name()}`" for item in itemList]

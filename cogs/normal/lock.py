@@ -27,7 +27,7 @@ class LockGroup(app_commands.Group):
             return
         if await helpers.handle_smart_autocomplete(interaction, key_name, object_name):
             return
-        searched_obj = await helpers.check_obj_container(interaction, current_room, object_name, player, False, True)
+        searched_obj = await helpers.check_obj_container(interaction, current_room, object_name, player, False, False)
         if searched_obj is None:
             return
 
@@ -37,60 +37,7 @@ class LockGroup(app_commands.Group):
         # Defer the response while processing the code
         await interaction.response.defer(thinking=True)
         
-        return
-        await interaction.response.defer(thinking=True)
-        player_id = interaction.user.id
-        player = helpers.get_player_from_id(player_id)
-        channel_id = interaction.channel_id
-        currRoom = helpers.get_room_from_id(channel_id)
-
-        if await helpers.check_paused(player, interaction):
-            return
-
-        if player is None or player.get_name() not in data.playerdata.keys():
-            await interaction.followup.send("You are not a valid player. Please contact an admin if you believe this is a mistake.")
-            return
-
-        if currRoom is None:
-            await interaction.followup.send("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*")
-            return
-
-        searchedObj = None
-        for object in currRoom.get_objects():
-            if helpers.simplify_string(object.get_name()) == helpers.simplify_string(object_name):
-                searchedObj = object
-
-        if searchedObj is None:
-            await interaction.followup.send(f"*Could not find the object **{object_name}**. Please use `/objects` to see a list of all the objects in the current room.*")
-            return
-
-        if not searchedObj.get_container_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to lock **{searchedObj.get_name()}**, but it had no lock.*")
-            return
-
-        if searchedObj.get_locked_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to lock the object **{searchedObj.get_name()}**, but it was already locked.*")
-            return
-
-        searchedItem = None
-
-        itemList = player.get_items()
-        for item in itemList:
-            if helpers.simplify_string(item.get_name()) == helpers.simplify_string(key_name):
-                searchedItem = item
-
-        if searchedItem is None:
-            await interaction.followup.send(f"*Could not find the item **{key_name}**. Please use `/inventory` to see a list of all the items in your inventory.*")
-            return
-
-        if helpers.simplify_string(searchedObj.get_key_name()) == helpers.simplify_string(searchedItem.get_name()):
-            searchedObj.switch_locked_state(True)
-            data.save()
-            await interaction.followup.send(f"***{player.get_name()}** locked the object **{searchedObj.get_name()}** using **{searchedItem.get_name()}**.*")
-            return
-
-        await interaction.followup.send(f"***{player.get_name()}** tried to lock the object **{searchedObj.get_name()}**, but **{searchedItem.get_name()}** was not the key.*")
-        return
+        return await helpers.set_lock(interaction, searched_obj, True, player, player.get_items(), key_name, "lockobject")
     #endregion
     #region /lock exit
     @app_commands.command(name = "exit", description = "Locks an exit connected to the current room using a key from your inventory.")
@@ -180,58 +127,26 @@ class UnlockGroup(app_commands.Group):
     @app_commands.describe(key_name = "The name of the item in your inventory that can unlock the object.")
     @app_commands.autocomplete(object_name=autocompletes.object_autocomplete, key_name=autocompletes.user_items_autocomplete)
     async def unlockobject(self, interaction: discord.Interaction, object_name: str, key_name: str):
+        # Get the player and room class objects for this interaction
+        player = helpers.get_player_from_id(interaction.user.id)
+        current_room = helpers.get_room_from_id(interaction.channel_id)
+
+        # Validate the interaction and handle smart autocomplete cases
+        if await helpers.check_valid_player(interaction, player):
+            return
+        if await helpers.handle_smart_autocomplete(interaction, key_name, object_name):
+            return
+        searched_obj = await helpers.check_obj_container(interaction, current_room, object_name, player, False, False)
+        if searched_obj is None:
+            return
+
+        # TODO: actually make locking logic. need to add LOCK_MESSAGES in messages.py, create a helper function for setting lock (set_lock)
+        # and implement logic in find_items_in_list for the messages regarding the key
+
+        # Defer the response while processing the code
         await interaction.response.defer(thinking=True)
-        player_id = interaction.user.id
-        player = helpers.get_player_from_id(player_id)
-        channel_id = interaction.channel_id
-        currRoom = helpers.get_room_from_id(channel_id)
-
-        if await helpers.check_paused(player, interaction):
-            return
-
-        if player is None or player.get_name() not in data.playerdata.keys():
-            await interaction.followup.send("*You are not a valid player. Please contact an admin if you believe this is a mistake.*")
-            return
-
-        if currRoom is None:
-            await interaction.followup.send("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*")
-            return
-
-        searchedObj = None
-        for object in currRoom.get_objects():
-            if helpers.simplify_string(object.get_name()) == helpers.simplify_string(object_name):
-                searchedObj = object
-
-        if searchedObj is None:
-            await interaction.followup.send(f"*Could not find the object **{object_name}**. Please use `/objects` to see a list of all the objects in the current room.*")
-            return
-
-        if not searchedObj.get_container_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to unlock **{searchedObj.get_name()}**, but it had no lock.*")
-            return
-
-        if not searchedObj.get_locked_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to unlock the object **{searchedObj.get_name()}**, but it was already unlocked.*")
-            return
-
-        searchedItem = None
-
-        itemList = player.get_items()
-        for item in itemList:
-            if helpers.simplify_string(item.get_name()) == helpers.simplify_string(key_name):
-                searchedItem = item
-
-        if searchedItem is None:
-            await interaction.followup.send(f"*Could not find the item **{key_name}**. Please use `/inventory` to see a list of all the items in your inventory.*")
-            return
-
-        if helpers.simplify_string(searchedObj.get_key_name()) == helpers.simplify_string(searchedItem.get_name()):
-            searchedObj.switch_locked_state(False)
-            data.save()
-            await interaction.followup.send(f"***{player.get_name()}** unlocked the object **{searchedObj.get_name()}** using **{searchedItem.get_name()}**.*")
-            return
-
-        await interaction.followup.send(f"***{player.get_name()}** tried to unlock the object **{searchedObj.get_name()}**, but **{searchedItem.get_name()}** was not the key.*")
+        
+        return await helpers.set_lock(interaction, searched_obj, False, player, player.get_items(), key_name, "unlockobject")
         return
     #endregion
     #region /unlock exit
