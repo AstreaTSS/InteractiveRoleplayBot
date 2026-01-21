@@ -3,6 +3,7 @@ import discord
 import asyncio
 
 from typing import Union, Optional
+from discord.ext import commands
 from discord import app_commands
 from collections import defaultdict
 from utils.data import Player, Room, Item, Object, Exit, playerdata, roomdata, save, get_max_carry_weight, get_max_wear_weight
@@ -56,7 +57,7 @@ async def check_paused(player: typing.Optional[Player], interaction: discord.Int
     if player is not None and player.is_paused():
         # TODO: once all commands are reformatted, the following can be changed to use cv2. currently breaks a lot of commands when paused
         # (view=SimpleAction(None, ' *Player commands are currently paused. Please wait until an admin unpauses.*', emote=':pause_button:'), ephemeral=True)
-        await interaction.response.send_message(content="*Player commands are currently paused. Please wait until an admin unpauses.*", ephemeral=True)
+        await interaction.response.send_message("*Player commands are currently paused. Please wait until an admin unpauses.*", ephemeral=True)
         return True
     return False
 #endregion
@@ -84,7 +85,11 @@ async def check_room_exists(interaction: discord.Interaction, room: typing.Optio
     return False
 #endregion
 #region Check if object exists
-async def check_object_exists(interaction: discord.Interaction, room: typing.Optional[Room], object_name: str) -> typing.Optional[Object]:
+async def check_object_exists(
+        interaction: discord.Interaction, 
+        room: typing.Optional[Room], 
+        object_name: str
+        ) -> typing.Optional[Object]:
     if await check_room_exists(interaction, room):
         return None
     
@@ -105,7 +110,14 @@ async def check_object_exists(interaction: discord.Interaction, room: typing.Opt
     return searched_obj
 #endregion
 #region Check if object is a container
-async def check_obj_container(interaction: discord.Interaction, room: typing.Optional[Room], object_name: str, player: Player, display_matters: bool = False, lock_matters: bool = True) -> typing.Optional[Object]:
+async def check_obj_container(
+        interaction: discord.Interaction,
+        room: typing.Optional[Room],
+        object_name: str,
+        player: Player,
+        display_matters: bool = False,
+        lock_matters: bool = True
+        ) -> typing.Optional[Object]:
     
     searched_obj = await check_object_exists(interaction, room, object_name)
 
@@ -128,6 +140,32 @@ async def check_obj_container(interaction: discord.Interaction, room: typing.Opt
             return None
     
     return searched_obj
+#endregion
+
+#region Check if exit exists
+async def get_exit(interaction: discord.Interaction, room: Room, exit_name: str) -> bool:
+    exit_room = get_room_from_name(exit_name)
+    if exit_room is None:
+        await interaction.response.send_message(f"*There is no exit to the room **{exit_name}** from **{room.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
+        return None
+    
+    exits = room.get_exits()
+    if len(exits) == 0:
+        await interaction.response.send_message(f"*There are no exits in the room **{room.get_name()}**.*")
+        return None
+    
+    searched_exit = None
+    for exit in exits:
+        if simplify_string(exit_name) == simplify_string(exit.get_room1()):
+            searched_exit = exit
+        elif simplify_string(exit_name) == simplify_string(exit.get_room2()):
+            searched_exit = exit
+    
+    if searched_exit is None:
+        await interaction.response.send_message(f"*There is no exit to the room **{exit_name}** from **{room.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
+        return None
+    
+    return searched_exit
 #endregion
 
 #endregion
@@ -298,17 +336,22 @@ async def set_lock(
         player: Player,
         item_list: typing.List[Item],
         item_name: str,
-        message_type: str
+        message_type: str,
+        current_room: typing.Optional[Room],
+        outside_room: typing.Optional[Room]
         ) -> bool:
 
-    if isinstance(lockable_var, Object):
-        if lockable_var.get_locked_state() == new_locked_state:
-            text_output = LOCK_MESSAGES[message_type]["already"](player=player, lockable=lockable_var)
-            await interaction.followup.send(view=SimpleAction(message_type, text_output, True))
-            return False
+    is_exit = False
+    if isinstance(lockable_var, Exit):
+        is_exit = True
+        lockable_name = current_room.get_name()
+    else:
+        lockable_name = lockable_var.get_name()
 
-    #### TODO: CREATE LOGIC FOR EXITS AS WELL ####
-    # elif isinstance(lockable_var, Exit):
+    if lockable_var.get_locked_state() == new_locked_state:
+        text_output = LOCK_MESSAGES[message_type]["already"](player=player, lockable=lockable_name)
+        await interaction.followup.send(view=SimpleAction(message_type, text_output, emote='', player_failure=True))
+        return False
     
     found_items = await find_items_in_list(interaction, item_list, item_name, message_type="key")
     if found_items is None:
@@ -319,12 +362,17 @@ async def set_lock(
     if simplify_string(lockable_var.get_key_name()) == simplify_string(key.get_name()):
         lockable_var.switch_locked_state(new_locked_state)
         save()
-        text_output = LOCK_MESSAGES[message_type]["success"](player=player, lockable=lockable_var, key=key)
+        
+        text_output = LOCK_MESSAGES[message_type]["success"](player=player, lockable=lockable_name, key=key)
         await interaction.followup.send(view=SimpleAction(message_type, text_output))
+        if is_exit:
+            outside_channel = interaction.client.get_channel(int(outside_room.get_id()))
+            outside_output = LOCK_MESSAGES[message_type]["outside"](lockable=lockable_name)
+            await outside_channel.send(view=SimpleAction(message_type, outside_output))
         return True
     else:
-        text_output = LOCK_MESSAGES[message_type]["failure"](player=player, lockable=lockable_var, key=key)
-        await interaction.followup.send(view=SimpleAction(message_type, text_output, True))
+        text_output = LOCK_MESSAGES[message_type]["failure"](player=player, lockable=lockable_name, key=key)
+        await interaction.followup.send(view=SimpleAction(message_type, text_output, emote='', player_failure=True))
         return False
 #endregion
 

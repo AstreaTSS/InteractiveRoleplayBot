@@ -7,16 +7,16 @@ ITEM_MESSAGES = {
             f"***{kwargs.get('player').get_name()}** took **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}***.",
         
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** to take. Please use `/items` to see a list of items in the current room.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/items` to see a list of items in the current room.*",
 
         "not_enough": lambda **kwargs:
-            f"*Could not find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** to take. Please use `/items` to see a list of items in the current room.*",
+            f"*Failed to find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}**. Please use `/items` to see a list of items in the current room.*",
 
         "full": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take the item **{kwargs.get('item').get_name()}**, but they could not fit it into their inventory.*",
+            f"***{kwargs.get('player').get_name()}** tried to take the item **{kwargs.get('item').get_name()}**, but they couldn't fit it into their inventory.*",
 
         "full_multiple": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}**, but they could not fit that much into their inventory.*",
+            f"***{kwargs.get('player').get_name()}** tried to take **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}**, but they couldn't fit that much into their inventory.*",
     },
 
     "takefrom": {
@@ -27,27 +27,27 @@ ITEM_MESSAGES = {
             f"***{kwargs.get('player').get_name()}** took **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}***.",
         
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}** to take. Please use `/contents` to see a list of all the items in an object.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/contents` to see a list of all the items in an object.*",
 
         "not_enough": lambda **kwargs:
-            f"*Could not find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}** to take. Please use `/contents` to see a list of all the items in an object.*",
+            f"*Failed to find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/contents` to see a list of all the items in an object.*",
 
         "full": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they could not fit it into their inventory.*",
+            f"***{kwargs.get('player').get_name()}** tried to take the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they couldn't fit it into their inventory.*",
 
         "full_multiple": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they could not fit that much into their inventory.*",
+            f"***{kwargs.get('player').get_name()}** tried to take **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they couldn't fit that much into their inventory.*",
     },
 
     "wear": {
         "single": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** wore the item **{kwargs.get('item').get_name()}**.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** to wear. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
         "not_wearable": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}**, but it was not a piece of clothing.*",
+            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}**, but it wasn't a piece of clothing.*",
         "full": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}**, but they were wearing too much.*",
+            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}**, but they were already wearing too much.*",
         "heavy": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}**, but it was too heavy.*",
     },
@@ -56,11 +56,11 @@ ITEM_MESSAGES = {
         "single": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** wore the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/contents` to see a list of all the items in an object.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/contents` to see a list of all the items in an object.*",
         "not_wearable": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but it was not a piece of clothing.*",
+            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but it wasn't a piece of clothing.*",
         "full": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they were wearing too much.*",
+            f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but they were already wearing too much.*",
         "heavy": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to wear the item **{kwargs.get('item').get_name()}** from the object **{kwargs.get('obj').get_name()}**, but it was too heavy.*",
     },
@@ -69,11 +69,11 @@ ITEM_MESSAGES = {
         "single": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** took and wore the item **{kwargs.get('item').get_name()}**.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** to take and wear. Please use `/items` to see a list of items in the current room.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}** to take and wear. Please use `/items` to see a list of items in the current room.*",
         "not_wearable": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take and wear the item **{kwargs.get('item').get_name()}**, but it was not a piece of clothing.*",
+            f"***{kwargs.get('player').get_name()}** tried to take and wear the item **{kwargs.get('item').get_name()}**, but it wasn't a piece of clothing.*",
         "full": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to take and wear the item **{kwargs.get('item').get_name()}**, but they were wearing too much.*",
+            f"***{kwargs.get('player').get_name()}** tried to take and wear the item **{kwargs.get('item').get_name()}**, but they were already wearing too much.*",
         "heavy": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to take and wear the item **{kwargs.get('item').get_name()}**, but it was too heavy.*",
     },
@@ -84,9 +84,9 @@ ITEM_MESSAGES = {
         "multiple": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** dropped **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}**.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** to drop. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
         "not_enough": lambda **kwargs:
-            f"*Could not find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** to drop. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
     },
 
     "dropinto": {
@@ -95,9 +95,9 @@ ITEM_MESSAGES = {
         "multiple": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** dropped **{kwargs.get('amount')}** of the item **{kwargs.get('item').get_name()}** into the object **{kwargs.get('obj').get_name()}***.",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
         "not_enough": lambda **kwargs:
-            f"*Could not find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find **{kwargs.get('amount')}** of the item **{kwargs.get('item_name')}** inside of the object **{kwargs.get('obj').get_name()}**. Please use `/inventory` to see a list of items in your inventory.*",
         "full": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to drop the item **{kwargs.get('item').get_name()}** into the object **{kwargs.get('obj').get_name()}**, but there wasn't enough space.*",
         "full_multiple": lambda **kwargs:
@@ -110,7 +110,7 @@ ITEM_MESSAGES = {
         "full": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to take off the item **{kwargs.get('item').get_name()}**, but it couldn't fit into their inventory.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}**. Please use `/clothes` to see the clothes you are wearing.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/clothes` to see the clothes you're wearing.*",
     },
 
     "undressroom": {
@@ -122,34 +122,56 @@ ITEM_MESSAGES = {
         "single": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** took off and dropped the item **{kwargs.get('item').get_name()}** into the object **{kwargs.get('obj').get_name()}**.*",
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}**. Please use `/clothes` to see the clothes you are wearing.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/clothes` to see the clothes you're wearing.*",
         "full": lambda **kwargs:
             f"***{kwargs.get('player').get_name()}** tried to take off and drop the item **{kwargs.get('item').get_name()}** into the object **{kwargs.get('obj').get_name()}**, but there wasn't enough space.*",
     },
 
     "key": {
         "not_found": lambda **kwargs:
-            f"*Could not find the item **{kwargs.get('item_name')}** to use as a key. Please use `/inventory` to see a list of items in your inventory.*",
+            f"*Failed to find the item **{kwargs.get('item_name')}**. Please use `/inventory` to see a list of items in your inventory.*",
     }
 }
 
 LOCK_MESSAGES = {
     "lockobject": {
         "success": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** locked the object **{kwargs.get('lockable').get_name()}** using **{kwargs.get('key').get_name()}**.*",
+            f"***{kwargs.get('player').get_name()}** locked the object **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**.*",
         "already": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable').get_name()}**, but it was already locked.*",
+            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable')}**, but it was already locked.*",
         "failure": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable').get_name()}**, but **{kwargs.get('key').get_name()}** was not the key.*",
+            f"***{kwargs.get('player').get_name()}** tried to lock the object **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**, but it didn't work.*",
     },
 
     "unlockobject": {
         "success": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** unlocked the object **{kwargs.get('lockable').get_name()}** using **{kwargs.get('key').get_name()}**.*",
+            f"***{kwargs.get('player').get_name()}** unlocked the object **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**.*",
         "already": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable').get_name()}**, but it was already unlocked.*",
+            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable')}**, but it was already unlocked.*",
         "failure": lambda **kwargs:
-            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable').get_name()}**, but **{kwargs.get('key').get_name()}** was not the key.*",
+            f"***{kwargs.get('player').get_name()}** tried to unlock the object **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**, but it didn't work.*",
+    },
+
+    "lockexit": {
+        "success": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** locked the exit to **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**.*",
+        "already": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to lock the exit to **{kwargs.get('lockable')}**, but it was already locked.*",
+        "failure": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to lock the exit to **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**, but it didn't work.*",
+        "outside": lambda **kwargs:
+            f"*The exit to **{kwargs.get('lockable')}** was locked.*"
+    },
+
+    "unlockexit": {
+        "success": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** unlocked the exit to **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**.*",
+        "already": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to unlock the exit to **{kwargs.get('lockable')}**, but it was already unlocked.*",
+        "failure": lambda **kwargs:
+            f"***{kwargs.get('player').get_name()}** tried to unlock the exit to **{kwargs.get('lockable')}** using **{kwargs.get('key').get_name()}**, but it didn't work.*",
+        "outside": lambda **kwargs:
+            f"*The exit to **{kwargs.get('lockable')}** was unlocked.*"
     }
 }
 

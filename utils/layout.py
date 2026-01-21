@@ -4,31 +4,22 @@ from discord import ui
 from utils.maps import ACTION_EMOTES
 
 class SimpleAction(discord.ui.LayoutView):
-    def __init__(self, message_type: str, action_output: str, emote: str = '', failure: bool = False):
+    def __init__(self, message_type: str, action_output: str, emote: str = '', player_failure: bool = False, command_failure: bool = False):
         super().__init__(timeout=None)
 
-        if not emote:
-            if failure:
-                emote = ':no_entry_sign'
+        if emote == '':
+            # A 'player failure' should be used when the player uses a command correctly, 
+            # just not where it's supposed to be used - the logic, the player just needs to do something different
+            # ex: locking an already locked door, trying to pick up an item with a full inventory
+            if player_failure:
+                emote = ':exclamation:'
+            # A 'command failure' should be used when the player uses a command incorrectly.
+            # ex: trying to pick up an item that doesn't exist, trying to look inside of an object that's not a container
+            elif command_failure:
+                emote = ':question:'
             else:
                 emote = ACTION_EMOTES.get(message_type, '')
 
         container = ui.Container(accent_color = 0x9a316c)
         container.add_item(ui.TextDisplay(f"{emote} {action_output}"))
         self.add_item(container)
-
-# class CV2(commands.Cog):
-#     def __init__(self, bot: commands.Bot):
-#         self.bot = bot
-    
-#     @app_commands.command(name = "faketake")
-#     @app_commands.describe(player_name = "The name of the player.")
-#     @app_commands.describe(item_name = "The name of the item.")
-#     @app_commands.describe(weight = "The item's weight.")
-#     @app_commands.describe(wearable = "Whether or not the item is wearable.")
-#     @app_commands.describe(desc = "The description of the item.")
-#     async def layout(self, interaction: discord.Interaction, player_name: str, item_name: str, weight: int, wearable: bool, desc: str):
-#         await interaction.response.send_message(view = Layout(player_name, item_name, weight, wearable, desc))
-
-# async def setup(bot: commands.Bot):
-#     await bot.add_cog(CV2(bot))

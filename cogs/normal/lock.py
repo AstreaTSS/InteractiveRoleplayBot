@@ -31,12 +31,10 @@ class LockGroup(app_commands.Group):
         if searched_obj is None:
             return
 
-        # TODO: actually make locking logic. need to add LOCK_MESSAGES in messages.py, create a helper function for setting lock (set_lock)
-        # and implement logic in find_items_in_list for the messages regarding the key
-
         # Defer the response while processing the code
         await interaction.response.defer(thinking=True)
         
+        # Locking logic, send confirmation message
         return await helpers.set_lock(interaction, searched_obj, True, player, player.get_items(), key_name, "lockobject")
     #endregion
     #region /lock exit
@@ -45,76 +43,24 @@ class LockGroup(app_commands.Group):
     @app_commands.describe(key_name = "The name of the item in your inventory that can lock the exit.")
     @app_commands.autocomplete(exit_name=autocompletes.exit_name_autocomplete, key_name=autocompletes.user_items_autocomplete)
     async def lockexit(self, interaction: discord.Interaction, exit_name: str, key_name: str):
-        await interaction.response.defer(thinking=True)
-        player_id = interaction.user.id
-        player = helpers.get_player_from_id(player_id)
-        channel_id = interaction.channel_id
-        currRoom = helpers.get_room_from_id(channel_id)
+        player = helpers.get_player_from_id(interaction.user.id)
+        current_room = helpers.get_room_from_id(interaction.channel_id)
 
-
-        if await helpers.check_paused(player, interaction):
-            return
-
-        if player is None or player.get_name() not in data.playerdata.keys():
-            await interaction.followup.send("*You are not a valid player. Please contact the admin if you believe this is a mistake.*")
-            return
-
-        if currRoom is None:
-            await interaction.followup.send("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*")
-            return
+        # Validate the interaction
+        if await helpers.check_valid_player(interaction, player):
+            return        
         
-        room = helpers.get_room_from_name(exit_name)
-        if room is None:
-            await interaction.followup.send(f"*There is no exit to the room **{exit_name}** from **{currRoom.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
+        # Get the exits
+        exit = await helpers.get_exit(interaction, current_room, exit_name)
+        if exit is None:
             return
+        exit_room = helpers.get_room_from_name(exit_name)
+        
+        # Defer the response while processing the code
+        await interaction.response.defer(thinking=True)
 
-        exits = currRoom.get_exits()
-
-        if len(exits) == 0:
-            await interaction.followup.send(f"*There are no exits in the room **{currRoom.get_name()}**.*")
-            return
-
-        searchedExit = None
-        searchedExitName = ''
-        for exit in exits:
-            if helpers.simplify_string(exit_name) == helpers.simplify_string(exit.get_room1()):
-                searchedExit = exit
-                searchedExitName = exit.get_room1()
-            elif helpers.simplify_string(exit_name) == helpers.simplify_string(exit.get_room2()):
-                searchedExit = exit
-                searchedExitName = exit.get_room2()
-
-        if searchedExit is None:
-            await interaction.followup.send(f"*There is no exit to the room **{exit_name}** from **{currRoom.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
-            return
-
-        if searchedExit.get_locked_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to lock the exit to **{searchedExitName}**, but it was already locked.*")
-            return
-
-        searchedItem = None
-        itemList = player.get_items()
-        for item in itemList:
-            if helpers.simplify_string(item.get_name()) == helpers.simplify_string(key_name):
-                searchedItem = item
-
-        if searchedItem is None:
-            await interaction.followup.send(f"*Could not find the item **{key_name}**. Please use `/inventory` to see a list of all the items in your inventory.*")
-            return
-
-        if helpers.simplify_string(searchedExit.get_key_name()) == helpers.simplify_string(searchedItem.get_name()):
-            channel = self.bot.get_channel(int(room.get_id()))
-            if channel is None:
-                await interaction.followup.send(f"*Could not find the channel for **{exit_name}**. The room may need to be fixed — please contact an admin.*")
-
-            searchedExit.switch_locked_state(True)
-            data.save()
-            await interaction.followup.send(f"***{player.get_name()}** locked the exit to **{searchedExitName}** using **{searchedItem.get_name()}***.")
-            await channel.send(f"*The exit to **{currRoom.get_name()}** was locked.*")
-            return
-
-        await interaction.followup.send(f"***{player.get_name()}** tried to lock the exit to **{searchedExitName}**, but **{searchedItem.get_name()}** was not the key.*")
-        return
+        # Locking logic, send confirmation message
+        return await helpers.set_lock(interaction, exit, True, player, player.get_items(), key_name, "lockexit", current_room, exit_room)
     #endregion
 
 class UnlockGroup(app_commands.Group):
@@ -140,12 +86,10 @@ class UnlockGroup(app_commands.Group):
         if searched_obj is None:
             return
 
-        # TODO: actually make locking logic. need to add LOCK_MESSAGES in messages.py, create a helper function for setting lock (set_lock)
-        # and implement logic in find_items_in_list for the messages regarding the key
-
         # Defer the response while processing the code
         await interaction.response.defer(thinking=True)
         
+        # Unlocking logic, send confirmation message
         return await helpers.set_lock(interaction, searched_obj, False, player, player.get_items(), key_name, "unlockobject")
         return
     #endregion
@@ -155,75 +99,24 @@ class UnlockGroup(app_commands.Group):
     @app_commands.describe(key_name = "The name of the item in your inventory that can unlock the exit.")
     @app_commands.autocomplete(exit_name=autocompletes.exit_name_autocomplete, key_name=autocompletes.user_items_autocomplete)
     async def unlockexit(self, interaction: discord.Interaction, exit_name: str, key_name: str):
-        await interaction.response.defer(thinking=True)
-        player_id = interaction.user.id
-        player = helpers.get_player_from_id(player_id)
-        channel_id = interaction.channel_id
-        currRoom = helpers.get_room_from_id(channel_id)
+        player = helpers.get_player_from_id(interaction.user.id)
+        current_room = helpers.get_room_from_id(interaction.channel_id)
 
-        if await helpers.check_paused(player, interaction):
-            return
-
-        if player is None or player.get_name() not in data.playerdata.keys():
-            await interaction.followup.send("*You are not a valid player. Please contact the admin if you believe this is a mistake.*")
-            return
-
-        if currRoom is None:
-            await interaction.followup.send("*You are not currently in a room. Please contact an admin if you believe this is a mistake.*")
-            return
+        # Validate the interaction
+        if await helpers.check_valid_player(interaction, player):
+            return        
         
-        room = helpers.get_room_from_name(exit_name)
-        if room is None:
-            await interaction.followup.send(f"*There is no exit to the room **{exit_name}** from **{currRoom.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
+        # Get the exits
+        exit = await helpers.get_exit(interaction, current_room, exit_name)
+        if exit is None:
             return
+        exit_room = helpers.get_room_from_name(exit_name)
+        
+        # Defer the response while processing the code
+        await interaction.response.defer(thinking=True)
 
-        exits = currRoom.get_exits()
-
-        if len(exits) == 0:
-            await interaction.followup.send(f"*There are no exits in the room **{currRoom.get_name()}**.*")
-            return
-
-        searchedExit = None
-        searchedExitName = ''
-        for exit in exits:
-            if helpers.simplify_string(exit_name) == helpers.simplify_string(exit.get_room1()):
-                searchedExit = exit
-                searchedExitName = exit.get_room1()
-            elif helpers.simplify_string(exit_name) == helpers.simplify_string(exit.get_room2()):
-                searchedExit = exit
-                searchedExitName = exit.get_room2()
-
-        if searchedExit is None:
-            await interaction.followup.send(f"*There is no exit to the room **{exit_name}** from **{currRoom.get_name()}**. Please use `/exits` to see a list of exits in the current room.*")
-            return
-
-        if not searchedExit.get_locked_state():
-            await interaction.followup.send(f"***{player.get_name()}** tried to unlock the exit to **{searchedExitName}**, but it was already unlocked.*")
-            return
-
-        searchedItem = None
-        itemList = player.get_items()
-        for item in itemList:
-            if helpers.simplify_string(item.get_name()) == helpers.simplify_string(key_name):
-                searchedItem = item
-
-        if searchedItem is None:
-            await interaction.followup.send(f"*Could not find the item **{key_name}**. Please use `/inventory` to see a list of all the items in your inventory.*")
-            return
-
-        if helpers.simplify_string(searchedExit.get_key_name()) == helpers.simplify_string(searchedItem.get_name()):
-            channel = self.bot.get_channel(int(room.get_id()))
-            if channel is None:
-                await interaction.followup.send(f"*Could not find the channel for **{exit_name}**. The room may need to be fixed — please contact an admin.*")
-
-            searchedExit.switch_locked_state(False)
-            data.save()
-            await interaction.followup.send(f"***{player.get_name()}** unlocked the exit to **{searchedExitName}** using **{searchedItem.get_name()}***.")
-            await channel.send(f"*The exit to **{currRoom.get_name()}** was unlocked.*")
-            return
-
-        await interaction.followup.send(f"***{player.get_name()}** tried to unlock the exit to **{searchedExitName}**, but **{searchedItem.get_name()}** was not the key.*")
-        return
+        # Unlocking logic, send confirmation message
+        return await helpers.set_lock(interaction, exit, False, player, player.get_items(), key_name, "unlockexit", current_room, exit_room)
     #endregion
 
 class LockCMDs(commands.Cog):
